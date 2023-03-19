@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SnipeITdotNET": {
+      "commandName": "Project",
+      "commandLineArgs": "asset getbytag 1149151748"
+    }
+  }
+}
