@@ -7,22 +7,34 @@ namespace SnipeITdotNET.Clients
     /// <summary>
     /// Provides access to the SnipeIT /hardware/ API
     /// </summary>
-    public class HardwareClient
+    public class HardwareClient : SnipeClient
     {
-        private SnipeConnection _connection;
+        public override string ServiceName => "hardware";
+        protected override SnipeConnection Connection { get; set; }
 
-        // INTERFACE MUST INCLUDE A CONNECTION
-
-        private readonly string serviceName = "hardware";
-
-        public HardwareClient(SnipeConnection connection)
+        public HardwareClient(SnipeConnection connection) : base(connection)
         {
-            _connection = connection;
+            Connection = connection;
         }
 
-        public async Task<SnipeResult<Asset>> GetAll(NameValueCollection options)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public async Task<SnipeResult<AssetCollection>> GetAll(NameValueCollection options)
         {
-            return new SnipeResult<Asset>();
+            return await Connection.GetAsync<AssetCollection>($"api/v1/{ServiceName}?{options}");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public async Task<SnipeResult<Asset>> GetById(int id)
+        {
+            return await Connection.GetAsync<Asset>($"api/v1/{ServiceName}/{id}");
         }
 
         /// <summary>
@@ -33,7 +45,18 @@ namespace SnipeITdotNET.Clients
         /// <returns>the specified asset as an object</returns>
         public async Task<SnipeResult<Asset>> GetByTag(string assetTag, NameValueCollection options)
         {
-            return await _connection.GetAsync<Asset>($"api/v1/{serviceName}/bytag/{assetTag}?{options}");
+            return await Connection.GetAsync<Asset>($"api/v1/{ServiceName}/bytag/{assetTag}?{options}");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assetSerial"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public async Task<SnipeResult<Asset>> GetBySerial(string assetSerial, NameValueCollection options)
+        {
+            return await Connection.GetAsync<Asset>($"api/v1/{ServiceName}/byserial/{assetSerial}?{options}");
         }
     }
 }
