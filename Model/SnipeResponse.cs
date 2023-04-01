@@ -11,6 +11,7 @@ namespace SnipeITdotNET.Model
 
         public string[]? Messages { get; set; }
 
+        [JsonPropertyName("payload")]
         public T? Data { get; set; }
     }
 }

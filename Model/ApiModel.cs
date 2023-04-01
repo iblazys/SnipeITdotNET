@@ -1,5 +1,4 @@
-﻿using SnipeITdotNET.Attributes;
-using SnipeITdotNET.Converters;
+﻿using SnipeITdotNET.Converters;
 using System.Text.Json.Serialization;
 
 namespace SnipeITdotNET.Model
@@ -10,7 +9,6 @@ namespace SnipeITdotNET.Model
         public long Id { get; set; }
 
         [JsonPropertyName("name")]
-        [RequiredRequestHeader("name")]
         public string Name { get; set; }
 
         [JsonPropertyName("created_at")]

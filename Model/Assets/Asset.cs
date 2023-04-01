@@ -1,5 +1,4 @@
-﻿using SnipeITdotNET.Attributes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace SnipeITdotNET.Model.Assets
 {
@@ -18,27 +17,19 @@ namespace SnipeITdotNET.Model.Assets
                 { "status_id", StatusLabel.Id.ToString() }
 
                 // Optional
+                // todo, null checking etc
             };
 
             return headers;
         }
-        /*
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-        */
 
         [JsonPropertyName("asset_tag")]
-        [RequiredRequestHeader("asset_tag")]
         public string AssetTag { get; set; }
 
         [JsonPropertyName("serial")]
         public string Serial { get; set; }
 
         [JsonPropertyName("model")]
-        [RequiredRequestHeader("model_id")]
         public Model Model { get; set; }
 
         [JsonPropertyName("model_id")]
@@ -57,7 +48,6 @@ namespace SnipeITdotNET.Model.Assets
         public object AssetEolDate { get; set; }
 
         [JsonPropertyName("status_label")]
-        [RequiredRequestHeader("status_id")]
         public StatusLabel StatusLabel { get; set; }
 
         [JsonPropertyName("category")]
@@ -101,14 +91,6 @@ namespace SnipeITdotNET.Model.Assets
 
         [JsonPropertyName("warranty_expires")]
         public object WarrantyExpires { get; set; }
-
-        /*
-        [JsonPropertyName("created_at")]
-        public CreatedAt CreatedAt { get; set; }
-
-        [JsonPropertyName("updated_at")]
-        public UpdatedAt UpdatedAt { get; set; }
-        */
 
         [JsonPropertyName("last_audit_date")]
         public object LastAuditDate { get; set; }

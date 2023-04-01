@@ -14,39 +14,39 @@ namespace SnipeITdotNET.Converters
 
             var apiResponse = new SnipeResponse<T>();
 
-            // Handle Status
+            // Handle status
             if (jsonDocument.RootElement.TryGetProperty("status", out JsonElement statusElement))
             {
                 apiResponse.Status = statusElement.GetString();
-
-                // Handle messages
-                if (jsonDocument.RootElement.TryGetProperty("messages", out JsonElement messages))
-                {
-                    // Handles "messages" when it is an object of arrays
-                    if (messages.ValueKind == JsonValueKind.Object)
-                    {
-                        var enumerator = messages.EnumerateObject();
-
-                        apiResponse.Messages = new string[enumerator.Count()];
-
-                        for (int i = 0; i < enumerator.Count(); i++)
-                        {
-                            // Rough way - need to get actual array values
-                            // Currently outputting "[\u0022The asset tag must be unique.\u0022]"
-                            apiResponse.Messages[i] = enumerator.ElementAt(i).Value.ToString();
-                        }
-                    }
-                    else
-                    {
-                        // TODO: handle "message" aswell.. comes from error 401 / 405
-                        // Handle a single message
-                        apiResponse.Messages = new string[1];
-                        apiResponse.Messages[0] = jsonDocument.RootElement.GetProperty("messages").ToString();
-                    }
-                }
             }
 
-            // Handle payload
+            // Handle messages
+            if (jsonDocument.RootElement.TryGetProperty("messages", out JsonElement messages))
+            {
+                // Handles "messages" when it is an object of arrays
+                if (messages.ValueKind == JsonValueKind.Object)
+                {
+                    var enumerator = messages.EnumerateObject();
+
+                    apiResponse.Messages = new string[enumerator.Count()];
+
+                    for (int i = 0; i < enumerator.Count(); i++)
+                    {
+                        // Rough way - need to get actual array values
+                        // Currently outputting "[\u0022The asset tag must be unique.\u0022]"
+                        apiResponse.Messages[i] = enumerator.ElementAt(i).Value.ToString();
+                    }
+                }
+                else
+                {
+                    // TODO: handle "message" aswell.. comes from error 401 / 405
+                    // Handle a single message
+                    apiResponse.Messages = new string[1];
+                    apiResponse.Messages[0] = jsonDocument.RootElement.GetProperty("messages").ToString();
+                }
+            }
+            
+            // Handle data
             if (jsonDocument.RootElement.TryGetProperty("payload", out JsonElement payload))
             {
                 // If we have a payload section, it is usually coming from a POST/PUT/PATCH etc
@@ -54,8 +54,17 @@ namespace SnipeITdotNET.Converters
             }
             else
             {
-                // No payload section is usually a GET request and those differ aswell.
-                apiResponse.Data = jsonDocument.Deserialize<T>(options);
+                // No payload section is usually coming from a GET request and those are inconsistent aswell.
+
+                // Could possibly have a rows section
+                if (jsonDocument.RootElement.TryGetProperty("rows", out JsonElement rows))
+                {
+                    apiResponse.Data = rows.Deserialize<T>(options);
+                }
+                else
+                {
+                    apiResponse.Data = jsonDocument.Deserialize<T>(options);
+                }
             }
 
             return apiResponse;

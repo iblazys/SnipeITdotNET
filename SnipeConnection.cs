@@ -7,12 +7,13 @@ using System.Text.Json;
 
 namespace SnipeITdotNET
 {
+    // IAsyncDisposable IDisposable perhaps? eliminates duplicate code
     public class SnipeConnection
     {
         public Uri ApiBaseUrl { get; private set; }
         public string ApiKey { get; private set; }
 
-        private JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
+        private JsonSerializerOptions SerializerOptions { get; set; }
 
         public SnipeConnection(string apiUrl, string apiKey)
         {
@@ -24,6 +25,8 @@ namespace SnipeITdotNET
             {
                 throw new ArgumentException("the api url must be and absolute uri!");
             }
+
+            SerializerOptions = new JsonSerializerOptions();
 
             TestConnection();
         }
@@ -82,7 +85,7 @@ namespace SnipeITdotNET
         {
             using var client = new HttpClient();
 
-            serializerOptions.Converters.Add(new SnipeResponseConverter<T>());
+            SerializerOptions.Converters.Add(new SnipeResponseConverter<T>());
 
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
@@ -91,7 +94,7 @@ namespace SnipeITdotNET
 
             var response = await client.GetAsync(url);
 
-            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(serializerOptions);
+            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(SerializerOptions);
 
             return content;
         }
@@ -105,26 +108,90 @@ namespace SnipeITdotNET
         /// <returns></returns>
         internal async Task<SnipeResponse<T>> PostAsync<T>(string serviceUrl, IApiModel data)
         {
-            // What an absolute mess the SnipeIT API is....
             using var client = new HttpClient();
             string url = ApiBaseUrl.AbsoluteUri + serviceUrl;
 
-            serializerOptions.Converters.Add(new SnipeResponseConverter<T>());
+            SerializerOptions.Converters.Add(new SnipeResponseConverter<T>());
 
             client.DefaultRequestHeaders.Add("Accept", "application/json");
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
            
             var headers = data.BuildHeaders();
-            var jsonString = new StringContent(JsonSerializer.Serialize(headers));
-            jsonString.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            var jsonString = new StringContent(JsonSerializer.Serialize(headers), 
+                new MediaTypeHeaderValue("application/json"));
 
             var response = await client.PostAsync(url, jsonString);
+            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(SerializerOptions);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
-
-            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(serializerOptions);
+            Console.WriteLine(await response.Content.ReadAsStringAsync()); // DEBUG
 
             return content;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serviceUrl"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        internal async Task<SnipeResponse<T>> PutAsync<T>(string serviceUrl, IApiModel data)
+        {
+            using var client = new HttpClient();
+            string url = ApiBaseUrl.AbsoluteUri + serviceUrl;
+
+            SerializerOptions.Converters.Add(new SnipeResponseConverter<T>());
+
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
+
+            var headers = data.BuildHeaders();
+
+            var response = await client.PutAsJsonAsync(url, headers);
+            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(SerializerOptions);
+
+            Console.WriteLine(await response.Content.ReadAsStringAsync()); // DEBUG
+
+            return new SnipeResponse<T>();
+        }
+
+        internal async Task<SnipeResponse<T>> PatchAsync<T>(string serviceUrl, IApiModel data)
+        {
+            using var client = new HttpClient();
+            string url = ApiBaseUrl.AbsoluteUri + serviceUrl;
+
+            SerializerOptions.Converters.Add(new SnipeResponseConverter<T>());
+
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
+
+            var headers = data.BuildHeaders();
+
+            var response = await client.PatchAsJsonAsync(url, headers);
+            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(SerializerOptions);
+
+            Console.WriteLine(await response.Content.ReadAsStringAsync()); // DEBUG
+
+            return new SnipeResponse<T>();
+        }
+
+        internal async Task<SnipeResponse<T>> DeleteAsync<T>(string serviceUrl)
+        {
+            using var client = new HttpClient();
+            string url = ApiBaseUrl.AbsoluteUri + serviceUrl;
+
+            SerializerOptions.Converters.Add(new SnipeResponseConverter<T>());
+
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
+
+            var response = await client.DeleteAsync(url);
+            var content = await response.Content.ReadFromJsonAsync<SnipeResponse<T>>(SerializerOptions);
+
+            Console.WriteLine(await response.Content.ReadAsStringAsync()); // DEBUG
+
+            return new SnipeResponse<T>();
         }
     }
 }
