@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SnipeITdotNET.Model
+namespace SnipeITdotNET.Model.Assets
 {
     public class AssetCollection
     {

@@ -1,23 +1,48 @@
-﻿using System.Text.Json.Serialization;
+﻿using SnipeITdotNET.Attributes;
+using System.Text.Json.Serialization;
 
-namespace SnipeITdotNET.Model
+namespace SnipeITdotNET.Model.Assets
 {
-    public class Asset
+    public class Asset : ApiModel
     {
+        // Use this instead of attributes
+        public override Dictionary<string, string> BuildHeaders()
+        {
+            //base.BuildHeaders();
+
+            Dictionary<string, string> headers = new Dictionary<string, string>()
+            {
+                // Required
+                { "asset_tag", AssetTag },
+                { "model_id", Model.Id.ToString() },
+                { "status_id", StatusLabel.Id.ToString() }
+
+                // Optional
+            };
+
+            return headers;
+        }
+        /*
         [JsonPropertyName("id")]
         public int Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
+        */
 
         [JsonPropertyName("asset_tag")]
+        [RequiredRequestHeader("asset_tag")]
         public string AssetTag { get; set; }
 
         [JsonPropertyName("serial")]
         public string Serial { get; set; }
 
         [JsonPropertyName("model")]
+        [RequiredRequestHeader("model_id")]
         public Model Model { get; set; }
+
+        [JsonPropertyName("model_id")]
+        private Model _model { set { Model = value; } }
 
         [JsonPropertyName("byod")]
         public bool Byod { get; set; }
@@ -32,6 +57,7 @@ namespace SnipeITdotNET.Model
         public object AssetEolDate { get; set; }
 
         [JsonPropertyName("status_label")]
+        [RequiredRequestHeader("status_id")]
         public StatusLabel StatusLabel { get; set; }
 
         [JsonPropertyName("category")]
@@ -76,11 +102,13 @@ namespace SnipeITdotNET.Model
         [JsonPropertyName("warranty_expires")]
         public object WarrantyExpires { get; set; }
 
+        /*
         [JsonPropertyName("created_at")]
         public CreatedAt CreatedAt { get; set; }
 
         [JsonPropertyName("updated_at")]
         public UpdatedAt UpdatedAt { get; set; }
+        */
 
         [JsonPropertyName("last_audit_date")]
         public object LastAuditDate { get; set; }
@@ -163,7 +191,7 @@ namespace SnipeITdotNET.Model
         public string Formatted { get; set; }
     }
 
-    public class CustomFields
+    public class CustomFields // remove this
     {
         [JsonPropertyName("IMEI")]
         public IMEI IMEI { get; set; }
